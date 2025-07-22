@@ -1,0 +1,32 @@
+import requests
+import matplotlib.pyplot as plt
+from datetime import datetime
+
+API_KEY = "878dd504490814121af81bb591e69388"  # Your API key
+CITY = "London"
+URL = f"http://api.openweathermap.org/data/2.5/forecast?q={CITY}&appid={API_KEY}&units=metric"
+
+response = requests.get(URL)
+
+if response.status_code == 200:
+    data = response.json()
+    times = []
+    temps = []
+    for entry in data['list'][:16]:  # Next 48 hours, 3-hour intervals
+        time = datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S")
+        temp = entry['main']['temp']
+        times.append(time)
+        temps.append(temp)
+
+    plt.figure(figsize=(10,5))
+    plt.plot(times, temps, marker='o')
+    plt.title(f"Temperature Forecast for {CITY}")
+    plt.xlabel("Time")
+    plt.ylabel("Temperature (°C)")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+else:
+    print("Failed to retrieve data:", response.status_code)
